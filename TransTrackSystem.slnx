@@ -1,1 +1,8 @@
-<Solution />
+<Solution>
+  <Project Path="NorthProcessor/NorthProcessor.csproj" Id="4d3bcb98-9231-4a9d-b957-b9bfe1b13726" />
+  <Project Path="SouthProcessor/SouthProcessor.csproj" Id="3efd99cc-86b7-4108-9382-812c25ed14be" />
+  <Project Path="TransTrack.Common.Models/TransTrack.Common.Models.csproj" Id="b6a9b1f2-8707-4cc2-a2f4-deb235002e56" />
+  <Project Path="TransTrack.FileHandling/TransTrack.FileHandling.csproj" Id="57fdcdd8-6fbf-4187-9d5d-bbfbb794edf6" />
+  <Project Path="TransTrack.Logging/TransTrack.Logging.csproj" Id="5ca10a17-98ab-4a2a-bdf3-8b4ac9676562" />
+  <Project Path="TransTrack.Tests/TransTrack.Tests.csproj" Id="02827b84-9f56-42f6-b882-b356c1539948" />
+</Solution>

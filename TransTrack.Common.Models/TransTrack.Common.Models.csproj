@@ -117,7 +117,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ProcessingSummary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShipmentRecord.cs" />
+    <Compile Include="ValidationResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
