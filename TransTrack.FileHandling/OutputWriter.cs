@@ -9,12 +9,16 @@ namespace TransTrack.FileHandling
         public void WriteProcessedFile(ProcessingSummary summary, string outputFolder)
         {
             EnsureDirectoryExists(outputFolder);
-            string outputFile = Path.Combine(outputFolder, summary.FileName + ".processed");
+
+            string fileNameWithoutExt = Path.GetFileNameWithoutExtension(summary.FileName);
+            string extension = Path.GetExtension(summary.FileName);
+            string outputFile = Path.Combine(outputFolder, fileNameWithoutExt + "_processed" + extension);
 
             string content = $@"ProcessedFile: {summary.FileName}
-                                TotalRecords: {summary.TotalRecords}
-                                FileUrl: {summary.FileUrl}
-                                DateProcessed: {summary.DateProcessed:yyyy-MM-dd HH:mm:ss}";
+TotalRecords: {summary.TotalRecords}
+FileUrl:
+{summary.FileUrl}
+DateProcessed: {summary.DateProcessed:yyyy-MM-dd HH:mm:ss}";
 
             File.WriteAllText(outputFile, content);
         }
@@ -22,11 +26,14 @@ namespace TransTrack.FileHandling
         public void WriteErrorFile(string fileName, string reason, string errorFolder)
         {
             EnsureDirectoryExists(errorFolder);
-            string errorFile = Path.Combine(errorFolder, fileName + ".error");
+
+            string fileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+            string extension = Path.GetExtension(fileName);
+            string errorFile = Path.Combine(errorFolder, fileNameWithoutExt + "_error" + extension);
 
             string content = $@"FileName: {fileName}
-                                Reason: {reason}
-                                Timestamp: {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+Reason: {reason}
+Timestamp: {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
 
             File.WriteAllText(errorFile, content);
         }

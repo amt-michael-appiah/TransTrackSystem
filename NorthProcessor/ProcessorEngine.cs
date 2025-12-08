@@ -1,7 +1,4 @@
-﻿using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
-using NorthProcessor;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using TransTrack.Common.Models;
@@ -48,6 +45,8 @@ namespace NorthProcessor
                 return;
             }
 
+            _logger.LogInfo($"Found {files.Length} file(s) to process");
+
             foreach (var file in files)
             {
                 ProcessFile(file);
@@ -63,6 +62,7 @@ namespace NorthProcessor
             {
                 // Parse file
                 List<ShipmentRecord> records = _parser.Parse(filePath);
+                _logger.LogInfo($"Parsed {records.Count} record(s) from {fileName}");
 
                 // Validate
                 ValidationResult validation = _validator.Validate(records);
@@ -70,9 +70,11 @@ namespace NorthProcessor
                 if (validation.IsValid)
                 {
                     // Upload to Cloudinary
+                    _logger.LogInfo($"Uploading {fileName} to Cloudinary...");
                     string fileUrl = _uploader.UploadFile(filePath);
+                    _logger.LogInfo($"File uploaded successfully: {fileUrl}");
 
-                    // Write processed output
+                    // Write processed output to Processed folder
                     var summary = new ProcessingSummary
                     {
                         FileName = fileName,
@@ -84,28 +86,51 @@ namespace NorthProcessor
 
                     _outputWriter.WriteProcessedFile(summary, _processedFolder);
 
-                    // Move to processed
-                    _fileOps.MoveToProcessed(filePath, _processedFolder);
+                    // DELETE the original file from Incoming folder
+                    _fileOps.DeleteProcessedFile(filePath);
 
-                    _logger.LogInfo($"File processed successfully: {fileName}");
-                    Console.WriteLine($"✓ Processed: {fileName}");
+                    _logger.LogInfo($"File processed successfully and deleted from incoming: {fileName}");
+                    Console.WriteLine($"✓ Processed: {fileName} ({records.Count} records)");
+                    Console.WriteLine($"  Original file deleted from incoming folder");
                 }
                 else
                 {
-                    // Write error file
+                    // Write error report to Errors folder (only the report file)
                     _outputWriter.WriteErrorFile(fileName, validation.ErrorMessage, _errorsFolder);
 
-                    // Move to errors
-                    _fileOps.MoveToErrors(filePath, _errorsFolder);
+                    // DELETE the invalid file from Incoming folder
+                    _fileOps.DeleteInvalidFile(filePath);
 
-                    _logger.LogWarning($"File validation failed: {fileName} - {validation.ErrorMessage}");
-                    Console.WriteLine($"✗ Invalid: {fileName} - {validation.ErrorMessage}");
+                    _logger.LogWarning($"File validation failed and deleted from incoming: {fileName} - {validation.ErrorMessage}");
+                    Console.WriteLine($"✗ Invalid: {fileName}");
+                    Console.WriteLine($"  Reason: {validation.ErrorMessage}");
+                    Console.WriteLine($"  File deleted from incoming folder");
+                    Console.WriteLine($"  Error report saved to Errors folder");
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error processing {fileName}: {ex.Message}");
-                Console.WriteLine($"✗ Error: {fileName} - {ex.Message}");
+                _logger.LogError($"Stack trace: {ex.StackTrace}");
+                Console.WriteLine($"✗ Error: {fileName}");
+                Console.WriteLine($"  Message: {ex.Message}");
+
+                try
+                {
+                    // Write error report to Errors folder
+                    _outputWriter.WriteErrorFile(fileName, $"System error: {ex.Message}", _errorsFolder);
+
+                    // DELETE the file that caused the error
+                    _fileOps.DeleteInvalidFile(filePath);
+
+                    _logger.LogError($"File deleted due to processing error: {fileName}");
+                    Console.WriteLine($"  File deleted from incoming folder");
+                    Console.WriteLine($"  Error report saved to Errors folder");
+                }
+                catch (Exception deleteEx)
+                {
+                    _logger.LogError($"Failed to delete error file: {deleteEx.Message}");
+                }
             }
         }
     }

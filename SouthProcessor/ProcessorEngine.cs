@@ -29,8 +29,8 @@ namespace SouthProcessor
             _errorsFolder = errorsFolder;
             _uploader = new CloudinaryUploader(cloudName, apiKey, apiSecret);
             _logger = logger;
-            _parser = new TxtParser();  
-            _validator = new SouthValidator();  
+            _parser = new TxtParser();
+            _validator = new SouthValidator();
             _fileOps = new FileOperations();
             _outputWriter = new OutputWriter();
         }
@@ -75,7 +75,7 @@ namespace SouthProcessor
                     string fileUrl = _uploader.UploadFile(filePath);
                     _logger.LogInfo($"File uploaded successfully: {fileUrl}");
 
-                    // Write processed output
+                    // Write processed output to Processed folder
                     var summary = new ProcessingSummary
                     {
                         FileName = fileName,
@@ -87,23 +87,26 @@ namespace SouthProcessor
 
                     _outputWriter.WriteProcessedFile(summary, _processedFolder);
 
-                    // Move to processed folder
-                    _fileOps.MoveToProcessed(filePath, _processedFolder);
+                    // DELETE the original file from Incoming folder
+                    _fileOps.DeleteProcessedFile(filePath);
 
-                    _logger.LogInfo($"File processed successfully: {fileName}");
+                    _logger.LogInfo($"File processed successfully and deleted from incoming: {fileName}");
                     Console.WriteLine($"✓ Processed: {fileName} ({records.Count} records)");
+                    Console.WriteLine($"  Original file deleted from incoming folder");
                 }
                 else
                 {
-                    // Write error file
+                    // Write error report to Errors folder (only the report file)
                     _outputWriter.WriteErrorFile(fileName, validation.ErrorMessage, _errorsFolder);
 
-                    // Move to errors folder
-                    _fileOps.MoveToErrors(filePath, _errorsFolder);
+                    // DELETE the invalid file from Incoming folder
+                    _fileOps.DeleteInvalidFile(filePath);
 
-                    _logger.LogWarning($"File validation failed: {fileName} - {validation.ErrorMessage}");
+                    _logger.LogWarning($"File validation failed and deleted from incoming: {fileName} - {validation.ErrorMessage}");
                     Console.WriteLine($"✗ Invalid: {fileName}");
                     Console.WriteLine($"  Reason: {validation.ErrorMessage}");
+                    Console.WriteLine($"  File deleted from incoming folder");
+                    Console.WriteLine($"  Error report saved to Errors folder");
                 }
             }
             catch (Exception ex)
@@ -113,15 +116,21 @@ namespace SouthProcessor
                 Console.WriteLine($"✗ Error: {fileName}");
                 Console.WriteLine($"  Message: {ex.Message}");
 
-                // Optionally move file to errors folder even on exception
                 try
                 {
+                    // Write error report to Errors folder
                     _outputWriter.WriteErrorFile(fileName, $"System error: {ex.Message}", _errorsFolder);
-                    _fileOps.MoveToErrors(filePath, _errorsFolder);
+
+                    // DELETE the file that caused the error
+                    _fileOps.DeleteInvalidFile(filePath);
+
+                    _logger.LogError($"File deleted due to processing error: {fileName}");
+                    Console.WriteLine($"  File deleted from incoming folder");
+                    Console.WriteLine($"  Error report saved to Errors folder");
                 }
-                catch (Exception moveEx)
+                catch (Exception deleteEx)
                 {
-                    _logger.LogError($"Failed to move error file: {moveEx.Message}");
+                    _logger.LogError($"Failed to delete error file: {deleteEx.Message}");
                 }
             }
         }

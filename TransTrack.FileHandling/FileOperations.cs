@@ -5,28 +5,38 @@ namespace TransTrack.FileHandling
 {
     public class FileOperations
     {
-        public void MoveToProcessed(string sourceFile, string processedFolder)
+        public void DeleteProcessedFile(string sourceFile)
         {
-            EnsureDirectoryExists(processedFolder);
-            string fileName = Path.GetFileName(sourceFile);
-            string destPath = Path.Combine(processedFolder, fileName);
-            File.Move(sourceFile, destPath);
-        }
-
-        public void MoveToErrors(string sourceFile, string errorsFolder)
-        {
-            EnsureDirectoryExists(errorsFolder);
-            string fileName = Path.GetFileName(sourceFile);
-            string destPath = Path.Combine(errorsFolder, fileName);
-            File.Move(sourceFile, destPath);
-        }
-
-        private void EnsureDirectoryExists(string path)
-        {
-            if (!Directory.Exists(path))
+            try
             {
-                Directory.CreateDirectory(path);
+                if (File.Exists(sourceFile))
+                {
+                    File.Delete(sourceFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to delete file {sourceFile}: {ex.Message}", ex);
             }
         }
+
+
+        public void DeleteInvalidFile(string sourceFile)
+        {
+            try
+            {
+                if (File.Exists(sourceFile))
+                {
+                    File.Delete(sourceFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to delete invalid file {sourceFile}: {ex.Message}", ex);
+            }
+        }
+
+
+
     }
 }

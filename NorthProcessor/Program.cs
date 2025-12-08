@@ -9,6 +9,8 @@ namespace NorthProcessor
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("=== North Warehouse Processor ===");
+            Console.WriteLine();
             // Load configuration
             string incomingFolder = ConfigurationManager.AppSettings["IncomingFolder"];
             string processedFolder = ConfigurationManager.AppSettings["ProcessedFolder"];

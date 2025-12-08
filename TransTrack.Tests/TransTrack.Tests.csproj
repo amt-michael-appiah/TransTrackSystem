@@ -49,7 +49,12 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="CsvParserTests.cs" />
+    <Compile Include="FileLoggerTests.cs" />
+    <Compile Include="IntegrationTests.cs" />
+    <Compile Include="NorthValidatorTests.cs" />
+    <Compile Include="TxtParserTests.cs" />
+    <Compile Include="SouthValidatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

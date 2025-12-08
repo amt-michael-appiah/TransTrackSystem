@@ -9,7 +9,9 @@ namespace SouthProcessor
     {
         static void Main(string[] args)
         {
-            // Load configuration
+            Console.WriteLine("=== South Warehouse Processor ===");
+            Console.WriteLine();
+
             string incomingFolder = ConfigurationManager.AppSettings["IncomingFolder"];
             string processedFolder = ConfigurationManager.AppSettings["ProcessedFolder"];
             string errorsFolder = ConfigurationManager.AppSettings["ErrorsFolder"];

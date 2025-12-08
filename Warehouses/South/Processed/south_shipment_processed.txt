@@ -1,0 +1,5 @@
+ProcessedFile: south_shipment.txt
+TotalRecords: 2
+FileUrl:
+https://res.cloudinary.com/transtrack/raw/upload/v1765160942/south_shipment.txt
+DateProcessed: 2025-12-08 03:00:45
